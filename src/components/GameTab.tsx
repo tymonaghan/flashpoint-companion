@@ -138,7 +138,7 @@ function MemberCard({
             color="green.400"
             _hover={{ color: 'green.300', bg: 'transparent' }}
             onClick={() => onHeal(member.id)}
-            disabled={member.currentHp >= member.maxHp}
+            disabled={member.currentHp >= member.maxHp || casualtyPending}
             title="Add HP"
             px={0.5}
             minW="auto"
@@ -560,22 +560,22 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
     [],
   );
 
-  const handleHit = useCallback((id: string) => {
-    let shouldOpenCasualty = false;
+  function handleHit(id: string) {
+    const target = members.find((m) => m.id === id);
+    if (!target || target.killed || target.currentHp <= DEAD_HP) return;
+
+    const willDie = target.currentHp <= MIN_HP;
     setMembers((prev) =>
-      prev.map((m) => {
-        if (m.id !== id || m.killed) return m;
-        if (m.currentHp === MIN_HP) {
-          shouldOpenCasualty = true;
-          return { ...m, currentHp: DEAD_HP, activated: false };
-        }
-        return { ...m, currentHp: m.currentHp - 1, activated: false };
-      }),
+      prev.map((m) =>
+        m.id === id && !m.killed && m.currentHp > DEAD_HP
+          ? { ...m, currentHp: willDie ? DEAD_HP : m.currentHp - 1, activated: false }
+          : m,
+      ),
     );
-    if (shouldOpenCasualty) {
+    if (willDie) {
       setCasualtyTarget(id);
     }
-  }, []);
+  }
 
   const handleHeal = useCallback((id: string) => {
     setMembers((prev) =>
