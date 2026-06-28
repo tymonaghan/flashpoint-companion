@@ -89,6 +89,8 @@ function MemberCard({
   const isRed = member.team === 'red';
   const borderColor = member.killed ? 'olive.700' : isRed ? 'rust.600' : 'steel.600';
   const bgColor = member.killed ? 'olive.900' : isRed ? 'rust.900' : 'steel.900';
+  const hpBlock = member.currentHp === MIN_HP ? '🟥' : '🟩';
+  const hpBlocks = member.currentHp > DEAD_HP ? hpBlock.repeat(member.currentHp) : '';
 
   return (
     <Flex
@@ -112,20 +114,18 @@ function MemberCard({
         <Text fontSize="xs" color="olive.400" truncate>
           {member.unitType}
         </Text>
-        <HStack gap={2} mt={0.5} color="olive.300">
-          <Text fontSize="2xs" display="flex" alignItems="center" gap={1}>
-            HP {member.currentHp}/{member.maxHp}
-          </Text>
-          <Text fontSize="2xs" display="flex" alignItems="center" gap={1}>
-            <FaCrosshairs />
-            {member.kills}
-          </Text>
-          <Text fontSize="2xs" display="flex" alignItems="center" gap={1}>
-            <FaSkull />
-            {member.deaths}
-          </Text>
-        </HStack>
+        <Text fontSize="2xs" mt={0.5} color="olive.300" display="flex" alignItems="center" gap={1}>
+          <FaCrosshairs />
+          {member.kills}
+        </Text>
+        <Text fontSize="2xs" color="olive.300" display="flex" alignItems="center" gap={1}>
+          <FaSkull />
+          {member.deaths}
+        </Text>
       </Box>
+      <Text fontSize="2xs" color="olive.200" flexShrink={0}>
+        HP {member.currentHp}/{member.maxHp} {hpBlocks}
+      </Text>
 
       {member.killed ? (
         <HStack gap={2} flexShrink={0}>
@@ -530,7 +530,7 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
         if (m.id !== id || m.killed) return m;
         if (m.currentHp === MIN_HP) {
           shouldOpenCasualty = true;
-          return { ...m, activated: false };
+          return { ...m, currentHp: DEAD_HP, activated: false };
         }
         return { ...m, currentHp: m.currentHp - 1, activated: false };
       }),
@@ -609,6 +609,15 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
   }
 
   function handleCasualtyCancel() {
+    if (casualtyTarget) {
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.id === casualtyTarget && !m.killed && m.currentHp === DEAD_HP
+            ? { ...m, currentHp: MIN_HP }
+            : m,
+        ),
+      );
+    }
     setCasualtyTarget(null);
   }
 
