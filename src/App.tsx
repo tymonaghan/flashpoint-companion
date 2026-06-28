@@ -29,6 +29,7 @@ function createDefaultTeam(team: 'red' | 'blue'): TeamMember[] {
       name,
       unitType,
       legendary: false,
+      hp: 4,
     };
   });
 }

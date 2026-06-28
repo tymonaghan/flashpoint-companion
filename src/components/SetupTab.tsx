@@ -45,6 +45,12 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
     updateMember(index, { legendary: checked });
   }
 
+  function handleHpChange(index: number, rawValue: string) {
+    const numeric = Number.parseInt(rawValue, 10);
+    const hp = Number.isNaN(numeric) ? 1 : Math.max(1, numeric);
+    updateMember(index, { hp });
+  }
+
   return (
     <Box flex={1} minW="300px" h="100%" display="flex" flexDirection="column" p={1}>
       <Flex align="center" gap={1} mb={1} flexShrink={0}>
@@ -102,6 +108,20 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
                   color="olive.200"
                   borderColor="olive.700"
                   _placeholder={{ color: 'olive.200', opacity: 0.8 }}
+                />
+                <Input
+                  size="xs"
+                  type="number"
+                  min={1}
+                  max={20}
+                  w="62px"
+                  placeholder="HP"
+                  value={member.hp}
+                  onChange={(e) => handleHpChange(i, e.target.value)}
+                  disabled={!isActive}
+                  bg="olive.900"
+                  color="olive.200"
+                  borderColor="olive.700"
                 />
               </Flex>
 

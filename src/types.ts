@@ -4,6 +4,7 @@ export interface TeamMember {
   name: string;
   unitType: string;
   legendary: boolean;
+  hp: number;
 }
 
 export const SANGHEILI_NAMES = [
@@ -36,6 +37,7 @@ export interface CasualtyLog {
   unitType: string;
   team: 'red' | 'blue';
   notes: string;
+  killedBy: string;
 }
 
 export interface GameMember {
@@ -47,6 +49,10 @@ export interface GameMember {
   killed: boolean;
   casualtyNotes: string;
   killedTurn: number | null;
+  maxHp: number;
+  currentHp: number;
+  kills: number;
+  deaths: number;
 }
 
 export interface ChatMessage {

@@ -13,9 +13,14 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
+import { FaCrosshairs, FaSkull } from 'react-icons/fa6';
 import type { TeamMember, GameMember, CasualtyLog } from '../types';
 
 const MAX_MEMBERS = 4;
+const SPECIAL_KILLERS = [
+  { value: 'gravity', label: 'Gravity' },
+  { value: 'guardians', label: 'The Guardians' },
+] as const;
 
 function activeCount(members: TeamMember[]): number {
   const legendary = members.filter((m) => m.legendary).length;
@@ -38,6 +43,10 @@ function initGameMembers(
     killed: false,
     casualtyNotes: '',
     killedTurn: null,
+    maxHp: m.hp,
+    currentHp: m.hp,
+    kills: 0,
+    deaths: 0,
   }));
 
   const fromBlue: GameMember[] = blueTeam.slice(0, blueActive).map((m) => ({
@@ -49,6 +58,10 @@ function initGameMembers(
     killed: false,
     casualtyNotes: '',
     killedTurn: null,
+    maxHp: m.hp,
+    currentHp: m.hp,
+    kills: 0,
+    deaths: 0,
   }));
 
   return [...fromRed, ...fromBlue];
@@ -59,10 +72,18 @@ function initGameMembers(
 interface MemberCardProps {
   member: GameMember;
   onActivate: (id: string, checked: boolean) => void;
-  onKill: (id: string) => void;
+  onHit: (id: string) => void;
+  onRespawn: (id: string) => void;
+  casualtyPending: boolean;
 }
 
-function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
+function MemberCard({
+  member,
+  onActivate,
+  onHit,
+  onRespawn,
+  casualtyPending,
+}: MemberCardProps) {
   const isRed = member.team === 'red';
   const borderColor = member.killed ? 'olive.700' : isRed ? 'rust.600' : 'steel.600';
   const bgColor = member.killed ? 'olive.900' : isRed ? 'rust.900' : 'steel.900';
@@ -89,10 +110,28 @@ function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
         <Text fontSize="xs" color="olive.400" truncate>
           {member.unitType}
         </Text>
+        <HStack gap={2} mt={0.5} color="olive.300">
+          <Text fontSize="2xs" display="flex" alignItems="center" gap={1}>
+            HP {member.currentHp}/{member.maxHp}
+          </Text>
+          <Text fontSize="2xs" display="flex" alignItems="center" gap={1}>
+            <FaCrosshairs />
+            {member.kills}
+          </Text>
+          <Text fontSize="2xs" display="flex" alignItems="center" gap={1}>
+            <FaSkull />
+            {member.deaths}
+          </Text>
+        </HStack>
       </Box>
 
       {member.killed ? (
-        <Badge colorPalette="gray" variant="solid" fontSize="xs">KIA</Badge>
+        <HStack gap={2} flexShrink={0}>
+          <Badge colorPalette="gray" variant="solid" fontSize="xs">KIA</Badge>
+          <Button size="xs" colorPalette="green" variant="outline" onClick={() => onRespawn(member.id)}>
+            Respawn
+          </Button>
+        </HStack>
       ) : (
         <HStack gap={2} flexShrink={0}>
           <Checkbox.Root
@@ -106,8 +145,14 @@ function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
             </Checkbox.Control>
             <Checkbox.Label fontSize="xs" color="olive.300">Act</Checkbox.Label>
           </Checkbox.Root>
-          <Button size="xs" colorPalette="red" variant="outline" onClick={() => onKill(member.id)}>
-            KIA
+          <Button
+            size="xs"
+            colorPalette="red"
+            variant="outline"
+            onClick={() => onHit(member.id)}
+            disabled={casualtyPending || member.currentHp === 0}
+          >
+            HIT
           </Button>
         </HStack>
       )}
@@ -119,28 +164,37 @@ function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
 
 interface CasualtyDialogProps {
   memberName: string;
+  killerOptions: Array<{ value: string; label: string }>;
   open: boolean;
-  onConfirm: (notes: string) => void;
+  onConfirm: (notes: string, killedBy: string) => void;
   onCancel: () => void;
 }
 
 function CasualtyDialog({
   memberName,
+  killerOptions,
   open,
   onConfirm,
   onCancel,
 }: CasualtyDialogProps) {
   const [notes, setNotes] = useState('');
+  const [killedBy, setKilledBy] = useState('');
+
+  const firstOptionValue = killerOptions[0]?.value ?? '';
 
   function handleConfirm() {
-    onConfirm(notes);
+    onConfirm(notes, killedBy || firstOptionValue);
     setNotes('');
+    setKilledBy('');
   }
 
   function handleCancel() {
     onCancel();
     setNotes('');
+    setKilledBy('');
   }
+
+  const selectedKiller = killedBy || firstOptionValue;
 
   return (
     <Dialog.Root open={open} onOpenChange={(d) => !d.open && handleCancel()}>
@@ -164,6 +218,27 @@ function CasualtyDialog({
                 borderColor="olive.700"
                 _placeholder={{ color: 'olive.200', opacity: 0.6 }}
               />
+            </Field.Root>
+            <Field.Root mt={3}>
+              <Field.Label color="olive.200">Killed By</Field.Label>
+              <Box
+                as="select"
+                value={selectedKiller}
+                onChange={(e) => setKilledBy(e.target.value)}
+                bg="olive.900"
+                color="olive.200"
+                border="1px solid"
+                borderColor="olive.700"
+                borderRadius="md"
+                p={2}
+                w="100%"
+              >
+                {killerOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Box>
             </Field.Root>
           </Dialog.Body>
           <Dialog.Footer gap={3}>
@@ -357,6 +432,9 @@ function EndGameDialog({
                     <Text fontSize="xs" color="olive.400">
                       {entry.unitType}
                     </Text>
+                    <Text fontSize="xs" color="olive.300">
+                      Killed by: {entry.killedBy}
+                    </Text>
                     {entry.notes && (
                       <Text fontSize="xs" color="olive.200" fontStyle="italic" mt={1}>
                         "{entry.notes}"
@@ -411,6 +489,15 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
   const allActivated = aliveMembersCount > 0 && activatedAliveCount === aliveMembersCount;
 
   const casualtyMember = members.find((m) => m.id === casualtyTarget) ?? null;
+  const killerOptions =
+    casualtyMember === null
+      ? [...SPECIAL_KILLERS]
+      : [
+          ...members
+            .filter((m) => m.team !== casualtyMember.team)
+            .map((m) => ({ value: m.id, label: m.name })),
+          ...SPECIAL_KILLERS,
+        ];
 
   function handleRestart() {
     setMembers(initGameMembers(redTeam, blueTeam));
@@ -433,19 +520,62 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
     [],
   );
 
-  const handleKill = useCallback((id: string) => {
-    setCasualtyTarget(id);
+  const handleHit = useCallback((id: string) => {
+    let shouldOpenCasualty = false;
+    setMembers((prev) =>
+      prev.map((m) => {
+        if (m.id !== id || m.killed || m.currentHp === 0) return m;
+        const nextHp = Math.max(0, m.currentHp - 1);
+        if (nextHp === 0) shouldOpenCasualty = true;
+        return { ...m, currentHp: nextHp, activated: false };
+      }),
+    );
+    if (shouldOpenCasualty) {
+      setCasualtyTarget(id);
+    }
   }, []);
 
-  function handleCasualtyConfirm(notes: string) {
+  const handleRespawn = useCallback((id: string) => {
+    setMembers((prev) =>
+      prev.map((m) =>
+        m.id === id
+          ? {
+              ...m,
+              killed: false,
+              currentHp: m.maxHp,
+              activated: false,
+              casualtyNotes: '',
+              killedTurn: null,
+            }
+          : m,
+      ),
+    );
+  }, []);
+
+  function handleCasualtyConfirm(notes: string, killedBy: string) {
     if (!casualtyTarget) return;
     const target = members.find((m) => m.id === casualtyTarget);
     if (!target) return;
+    const killer = members.find((m) => m.id === killedBy) ?? null;
+    const killedByLabel =
+      killer?.name
+      ?? SPECIAL_KILLERS.find((option) => option.value === killedBy)?.label
+      ?? 'Unknown';
 
     setMembers((prev) =>
       prev.map((m) =>
         m.id === casualtyTarget
-          ? { ...m, killed: true, casualtyNotes: notes, killedTurn: turn, activated: false }
+          ? {
+              ...m,
+              killed: true,
+              casualtyNotes: notes,
+              killedTurn: turn,
+              activated: false,
+              currentHp: 0,
+              deaths: m.deaths + 1,
+            }
+          : killer !== null && m.id === killer.id
+            ? { ...m, kills: m.kills + 1 }
           : m,
       ),
     );
@@ -466,6 +596,7 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
         unitType: target.unitType,
         team: target.team,
         notes,
+        killedBy: killedByLabel,
       },
     ]);
 
@@ -473,6 +604,15 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
   }
 
   function handleCasualtyCancel() {
+    if (casualtyTarget) {
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.id === casualtyTarget && !m.killed && m.currentHp === 0
+            ? { ...m, currentHp: 1 }
+            : m,
+        ),
+      );
+    }
     setCasualtyTarget(null);
   }
 
@@ -584,7 +724,9 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
                     key={m.id}
                     member={m}
                     onActivate={handleActivate}
-                    onKill={handleKill}
+                    onHit={handleHit}
+                    onRespawn={handleRespawn}
+                    casualtyPending={casualtyTarget === m.id}
                   />
                 ))}
             </Box>
@@ -609,7 +751,9 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
                     key={m.id}
                     member={m}
                     onActivate={handleActivate}
-                    onKill={handleKill}
+                    onHit={handleHit}
+                    onRespawn={handleRespawn}
+                    casualtyPending={casualtyTarget === m.id}
                   />
                 ))}
             </Box>
@@ -620,6 +764,7 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
       {/* Dialogs */}
       <CasualtyDialog
         memberName={casualtyMember?.name ?? ''}
+        killerOptions={killerOptions}
         open={casualtyTarget !== null}
         onConfirm={handleCasualtyConfirm}
         onCancel={handleCasualtyCancel}
