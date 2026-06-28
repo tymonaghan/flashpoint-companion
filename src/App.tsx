@@ -42,8 +42,8 @@ function App() {
   );
 
   return (
-    <Box display="flex" flexDirection="column" h="100vh" bg="olive.900" color="olive.200" p={1}>
-      <Tabs.Root defaultValue="setup" size="sm" flex={1} display="flex" flexDirection="column">
+    <Box display="flex" flexDirection="column" h="100vh" minH="0" bg="olive.900" color="olive.200" p={1}>
+      <Tabs.Root defaultValue="setup" size="sm" flex={1} minH="0" display="flex" flexDirection="column">
         <Tabs.List mb={1} flexShrink={0}>
           <Tabs.Trigger value="setup">Setup</Tabs.Trigger>
           <Tabs.Trigger value="game">Game</Tabs.Trigger>
@@ -51,8 +51,8 @@ function App() {
           <Tabs.Indicator />
         </Tabs.List>
 
-        <Box flex={1} overflowY="auto" overflowX="hidden">
-          <Tabs.Content value="setup" h="100%">
+        <Box flex={1} minH="0" overflow="hidden" display="flex" flexDirection="column">
+          <Tabs.Content value="setup" h="100%" minH="0" overflow="hidden">
             <SetupTab
               redTeam={redTeam}
               blueTeam={blueTeam}
@@ -61,11 +61,11 @@ function App() {
             />
           </Tabs.Content>
 
-          <Tabs.Content value="game" h="100%">
+          <Tabs.Content value="game" h="100%" minH="0" overflow="hidden">
             <GameTab redTeam={redTeam} blueTeam={blueTeam} />
           </Tabs.Content>
 
-          <Tabs.Content value="ask" h="100%">
+          <Tabs.Content value="ask" h="100%" minH="0" overflow="hidden">
             <AskTab />
           </Tabs.Content>
         </Box>

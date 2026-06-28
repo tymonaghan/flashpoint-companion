@@ -25,6 +25,20 @@ body {
   flex-direction: column;
 }
 
+/* Force tab panels to fill available height properly */
+[role="tabpanel"] {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+[role="tabpanel"] > * {
+  flex: 1;
+  min-height: 0;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: #d0ccc0 !important;
