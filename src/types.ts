@@ -30,6 +30,13 @@ export const BLUE_UNIT_TYPES = [
   'Spartan Deadeye',
 ];
 
+export const BLUE_SPARTAN_NAMES = [
+  'Fred-104',
+  'Linda-058',
+  'Kelly-087',
+  'John-117',
+];
+
 export interface CasualtyLog {
   turn: number;
   order: number;

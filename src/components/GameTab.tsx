@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCrosshairs, FaSkull } from 'react-icons/fa6';
 import type { TeamMember, GameMember, CasualtyLog } from '../types';
+import { BLUE_SPARTAN_NAMES } from '../types';
 
 const MAX_MEMBERS = 4;
 const MIN_HP = 1;
@@ -53,7 +54,7 @@ function initGameMembers(
 
   const fromBlue: GameMember[] = blueTeam.slice(0, blueActive).map((m) => ({
     id: m.id,
-    name: m.name || `Blue Member ${blueTeam.indexOf(m) + 1}`,
+    name: m.name || BLUE_SPARTAN_NAMES[blueTeam.indexOf(m) % BLUE_SPARTAN_NAMES.length],
     unitType: m.unitType || 'Unknown',
     team: 'blue' as const,
     activated: false,
@@ -89,7 +90,7 @@ function MemberCard({
   const isRed = member.team === 'red';
   const borderColor = member.killed ? 'olive.700' : isRed ? 'rust.600' : 'steel.600';
   const bgColor = member.killed ? 'olive.900' : isRed ? 'rust.900' : 'steel.900';
-  const hpBlock = member.currentHp === MIN_HP ? '🟥' : '🟩';
+  const hpBlock = member.currentHp === MIN_HP ? '🟥' : member.currentHp === 2 ? '🟨' : '🟩';
   const hpBlocks = member.currentHp > DEAD_HP ? hpBlock.repeat(member.currentHp) : '';
 
   return (
@@ -666,9 +667,9 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
       <Flex gap={2} mb={1} justify="flex-end" flexShrink={0}>
         <Button
           size="sm"
-          colorPalette="green"
+          colorPalette={allActivated ? 'green' : 'yellow'}
           onClick={() => setShowNewTurn(true)}
-          disabled={!allActivated || !initialized}
+          disabled={!initialized}
         >
           Next Turn
         </Button>

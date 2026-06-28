@@ -141,7 +141,9 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                <Checkbox.Label fontSize="2xs">Legendary</Checkbox.Label>
+                <Checkbox.Label fontSize="2xs" color="olive.100" fontWeight="semibold">
+                  Legendary
+                </Checkbox.Label>
               </Checkbox.Root>
             </Card.Root>
           );

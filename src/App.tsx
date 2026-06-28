@@ -4,7 +4,7 @@ import { SetupTab } from './components/SetupTab';
 import { GameTab } from './components/GameTab';
 import { AskTab } from './components/AskTab';
 import type { TeamMember } from './types';
-import { SANGHEILI_NAMES, BLUE_UNIT_TYPES } from './types';
+import { SANGHEILI_NAMES, BLUE_UNIT_TYPES, BLUE_SPARTAN_NAMES } from './types';
 
 const MAX_MEMBERS = 4;
 
@@ -18,8 +18,8 @@ function createDefaultTeam(team: 'red' | 'blue'): TeamMember[] {
       name = SANGHEILI_NAMES[Math.floor(Math.random() * SANGHEILI_NAMES.length)];
       unitType = 'Elite Mercenary';
     } else {
-      // Blue team: cycling Spartan types, generic names
-      name = `Blue Member ${i + 1}`;
+      // Blue team: Halo Spartan names with cycling Spartan types
+      name = BLUE_SPARTAN_NAMES[i % BLUE_SPARTAN_NAMES.length];
       unitType = BLUE_UNIT_TYPES[i % BLUE_UNIT_TYPES.length];
     }
 
