@@ -4,6 +4,7 @@ export interface TeamMember {
   name: string;
   unitType: string;
   legendary: boolean;
+  hp: number;
 }
 
 export const SANGHEILI_NAMES = [
@@ -29,6 +30,13 @@ export const BLUE_UNIT_TYPES = [
   'Spartan Deadeye',
 ];
 
+export const BLUE_SPARTAN_NAMES = [
+  'Fred-104',
+  'Linda-058',
+  'Kelly-087',
+  'John-117',
+];
+
 export interface CasualtyLog {
   turn: number;
   order: number;
@@ -36,6 +44,9 @@ export interface CasualtyLog {
   unitType: string;
   team: 'red' | 'blue';
   notes: string;
+  killedBy: string;
+  redScoreAfter: number;
+  blueScoreAfter: number;
 }
 
 export interface GameMember {
@@ -47,6 +58,10 @@ export interface GameMember {
   killed: boolean;
   casualtyNotes: string;
   killedTurn: number | null;
+  maxHp: number;
+  currentHp: number;
+  kills: number;
+  deaths: number;
 }
 
 export interface ChatMessage {

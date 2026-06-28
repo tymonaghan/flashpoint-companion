@@ -11,6 +11,8 @@ import {
 import type { TeamMember } from '../types';
 
 const MAX_MEMBERS = 4;
+const MIN_HP = 1;
+const MAX_HP = 20;
 
 interface TeamColumnProps {
   color: 'red' | 'blue';
@@ -43,6 +45,14 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
     // Prevent making more legendary than would leave at least 1 member
     if (checked && MAX_MEMBERS - (currentLegendary + 1) < 1) return;
     updateMember(index, { legendary: checked });
+  }
+
+  function handleHpChange(index: number, rawValue: string) {
+    const numeric = Number.parseInt(rawValue, 10);
+    const hp = Number.isNaN(numeric)
+      ? MIN_HP
+      : Math.min(MAX_HP, Math.max(MIN_HP, numeric));
+    updateMember(index, { hp });
   }
 
   return (
@@ -103,6 +113,20 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
                   borderColor="olive.700"
                   _placeholder={{ color: 'olive.200', opacity: 0.8 }}
                 />
+                <Input
+                  size="xs"
+                  type="number"
+                  min={MIN_HP}
+                  max={MAX_HP}
+                  w="62px"
+                  placeholder="HP"
+                  value={member.hp}
+                  onChange={(e) => handleHpChange(i, e.target.value)}
+                  disabled={!isActive}
+                  bg="olive.900"
+                  color="olive.200"
+                  borderColor="olive.700"
+                />
               </Flex>
 
               <Checkbox.Root
@@ -117,7 +141,9 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                <Checkbox.Label fontSize="2xs">Legendary</Checkbox.Label>
+                <Checkbox.Label fontSize="2xs" color="olive.100" fontWeight="semibold">
+                  Legendary
+                </Checkbox.Label>
               </Checkbox.Root>
             </Card.Root>
           );
