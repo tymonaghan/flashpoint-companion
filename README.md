@@ -1,32 +1,39 @@
-# React + TypeScript + Vite
+# Flashpoint Companion
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A local browser companion app for playing **Halo: Flashpoint**, the tactical miniatures skirmish game. Built with [React](https://react.dev/), [Chakra UI v3](https://www.chakra-ui.com/), and [Vite](https://vite.dev/).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 🔧 Setup Tab
+- Configure **Red** and **Blue** fireteams before the game.
+- Each team supports up to **4 members**, each with a Name and Unit Type.
+- Checking **Legendary** on a member reduces the team's active roster by 1 (e.g. 1 Legendary + 2 Standard = 3 active members).
 
-## React Compiler
+### ⚔️ Game Tab
+- Displays all active members for both fireteams.
+- **Activate** each member with a checkbox — once all alive members are activated, the **Next Turn** button appears.
+- **Mark Killed** any member to open a casualty report dialog with notes; the opposing team automatically receives 1 point.
+- **Scoreboard** at the top tracks each team's kill points and the current turn number.
+- **Next Turn** opens a checklist dialog confirming: weapons dropped, shields replenished, and command dice rolled.
+- **End Game** displays the winner and a full **After Action Report** (AAR) listing all casualties in order with turn numbers and notes.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 💬 Ask Tab
+- Chat interface powered by **OpenAI GPT-4o-mini**.
+- Pre-loaded with a comprehensive Halo: Flashpoint rules system prompt so the assistant can answer rules questions in plain language.
+- Enter your OpenAI API key in the UI (used locally, never stored or sent anywhere except the OpenAI API).
 
-## Expanding the Oxlint configuration
+## Development
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # start dev server at http://localhost:5173
+npm run build    # production build
+npm run lint     # oxlint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Stack
+
+- **React 19** + **TypeScript**
+- **Chakra UI v3** (component library)
+- **Vite 8** (bundler)
+- **OpenAI API** (Ask tab)
