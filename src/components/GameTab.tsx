@@ -13,7 +13,7 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
-import { FaCrosshairs, FaSkull } from 'react-icons/fa6';
+import { FaCrosshairs, FaHeart, FaSkull } from 'react-icons/fa6';
 import type { TeamMember, GameMember, CasualtyLog } from '../types';
 import { BLUE_SPARTAN_NAMES } from '../types';
 
@@ -77,6 +77,7 @@ interface MemberCardProps {
   member: GameMember;
   onActivate: (id: string, checked: boolean) => void;
   onHit: (id: string) => void;
+  onHeal: (id: string) => void;
   onRespawn: (id: string) => void;
   casualtyPending: boolean;
 }
@@ -85,6 +86,7 @@ function MemberCard({
   member,
   onActivate,
   onHit,
+  onHeal,
   onRespawn,
   casualtyPending,
 }: MemberCardProps) {
@@ -125,9 +127,28 @@ function MemberCard({
           {member.deaths}
         </Text>
       </Box>
-      <Text fontSize="2xs" color="olive.200" flexShrink={0}>
-        HP {member.currentHp}/{member.maxHp} {hpBlocks}
-      </Text>
+      <HStack gap={1} flexShrink={0} align="center">
+        <Text fontSize="2xs" color="olive.200">
+          HP {member.currentHp}/{member.maxHp} {hpBlocks}
+        </Text>
+        {!member.killed && (
+          <Button
+            size="2xs"
+            variant="ghost"
+            color="green.400"
+            _hover={{ color: 'green.300', bg: 'transparent' }}
+            onClick={() => onHeal(member.id)}
+            disabled={member.currentHp >= member.maxHp}
+            title="Add HP"
+            px={0.5}
+            minW="auto"
+            h="auto"
+            lineHeight="1"
+          >
+            <FaHeart />+
+          </Button>
+        )}
+      </HStack>
 
       {member.killed ? (
         <HStack gap={2} flexShrink={0}>
@@ -493,6 +514,20 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
   const activatedAliveCount = members.filter((m) => !m.killed && m.activated).length;
   const allActivated = aliveMembersCount > 0 && activatedAliveCount === aliveMembersCount;
 
+  const redMembers = members.filter((m) => m.team === 'red');
+  const redAlive = redMembers.filter((m) => !m.killed).length;
+  const redStatusText =
+    redAlive === redMembers.length
+      ? 'Full Strength'
+      : `${redAlive}/${redMembers.length} active`;
+
+  const blueMembers = members.filter((m) => m.team === 'blue');
+  const blueAlive = blueMembers.filter((m) => !m.killed).length;
+  const blueStatusText =
+    blueAlive === blueMembers.length
+      ? 'Full Strength'
+      : `${blueAlive}/${blueMembers.length} active`;
+
   const casualtyMember = members.find((m) => m.id === casualtyTarget) ?? null;
   const killerOptions =
     casualtyMember === null
@@ -540,6 +575,16 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
     if (shouldOpenCasualty) {
       setCasualtyTarget(id);
     }
+  }, []);
+
+  const handleHeal = useCallback((id: string) => {
+    setMembers((prev) =>
+      prev.map((m) =>
+        m.id === id && !m.killed && m.currentHp < m.maxHp
+          ? { ...m, currentHp: m.currentHp + 1 }
+          : m,
+      ),
+    );
   }, []);
 
   const handleRespawn = useCallback((id: string) => {
@@ -648,7 +693,10 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
           <Text fontSize="2xl" fontWeight="bold" color="rust.300" lineHeight="1">
             {redScore}
           </Text>
-          <Text color="olive.300" fontSize="xs">Red</Text>
+          <Text color="rust.200" fontSize="xs" fontWeight="600">Red Team</Text>
+          {initialized && (
+            <Text color="olive.400" fontSize="2xs">{redStatusText}</Text>
+          )}
         </Box>
       <VStack
         gap={1}
@@ -672,7 +720,10 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
         <Text fontSize="2xl" fontWeight="bold" color="steel.300" lineHeight="1">
           {blueScore}
         </Text>
-        <Text color="olive.300" fontSize="xs">Blue</Text>
+        <Text color="steel.200" fontSize="xs" fontWeight="600">Blue Team</Text>
+        {initialized && (
+          <Text color="olive.400" fontSize="2xs">{blueStatusText}</Text>
+        )}
       </Box>
       </Flex>
 
@@ -697,15 +748,6 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
         <Flex gap={3} flex={1} minH="0" overflow="hidden">
           {/* Red Team */}
           <Flex flex={1} minW="0" minH="0" direction="column" overflow="hidden">
-            <Flex align="center" gap={2} mb={2} flexShrink={0}>
-              <Heading size="md" color="rust.300">
-                Red Team
-              </Heading>
-              <Badge bg="rust.700" color="rust.100" fontSize="xs">
-                {members.filter((m) => m.team === 'red' && !m.killed).length}{' '}
-                alive
-              </Badge>
-            </Flex>
             <Box flex={1} overflowY="auto">
               {members
                 .filter((m) => m.team === 'red')
@@ -715,6 +757,7 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
                     member={m}
                     onActivate={handleActivate}
                     onHit={handleHit}
+                    onHeal={handleHeal}
                     onRespawn={handleRespawn}
                     casualtyPending={casualtyTarget === m.id}
                   />
@@ -724,15 +767,6 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
 
           {/* Blue Team */}
           <Flex flex={1} minW="0" minH="0" direction="column" overflow="hidden">
-            <Flex align="center" gap={2} mb={2} flexShrink={0}>
-              <Heading size="md" color="steel.300">
-                Blue Team
-              </Heading>
-              <Badge bg="steel.700" color="steel.100" fontSize="xs">
-                {members.filter((m) => m.team === 'blue' && !m.killed).length}{' '}
-                alive
-              </Badge>
-            </Flex>
             <Box flex={1} overflowY="auto">
               {members
                 .filter((m) => m.team === 'blue')
@@ -742,6 +776,7 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
                     member={m}
                     onActivate={handleActivate}
                     onHit={handleHit}
+                    onHeal={handleHeal}
                     onRespawn={handleRespawn}
                     casualtyPending={casualtyTarget === m.id}
                   />
