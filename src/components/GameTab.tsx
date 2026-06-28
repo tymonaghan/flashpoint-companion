@@ -20,6 +20,7 @@ import { BLUE_SPARTAN_NAMES } from '../types';
 const MAX_MEMBERS = 4;
 const MIN_HP = 1;
 const DEAD_HP = 0;
+const WARNING_HP = 2;
 const SPECIAL_KILLERS = [
   { value: 'gravity', label: 'Gravity' },
   { value: 'guardians', label: 'The Guardians' },
@@ -90,7 +91,7 @@ function MemberCard({
   const isRed = member.team === 'red';
   const borderColor = member.killed ? 'olive.700' : isRed ? 'rust.600' : 'steel.600';
   const bgColor = member.killed ? 'olive.900' : isRed ? 'rust.900' : 'steel.900';
-  const hpBlock = member.currentHp === MIN_HP ? '🟥' : member.currentHp === 2 ? '🟨' : '🟩';
+  const hpBlock = member.currentHp === MIN_HP ? '🟥' : member.currentHp === WARNING_HP ? '🟨' : '🟩';
   const hpBlocks = member.currentHp > DEAD_HP ? hpBlock.repeat(member.currentHp) : '';
 
   return (
