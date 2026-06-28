@@ -45,6 +45,8 @@ export interface CasualtyLog {
   team: 'red' | 'blue';
   notes: string;
   killedBy: string;
+  redScoreAfter: number;
+  blueScoreAfter: number;
 }
 
 export interface GameMember {

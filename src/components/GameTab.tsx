@@ -13,6 +13,16 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { FaCrosshairs, FaHeart, FaSkull } from 'react-icons/fa6';
 import type { TeamMember, GameMember, CasualtyLog } from '../types';
 import { BLUE_SPARTAN_NAMES } from '../types';
@@ -383,6 +393,28 @@ interface EndGameDialogProps {
   onClose: () => void;
 }
 
+function buildKillChartData(log: CasualtyLog[]) {
+  if (log.length === 0) return [];
+  // Start at turn 0 with 0 kills
+  const byTurn = new Map<number, { red: number; blue: number }>();
+  for (const entry of log) {
+    byTurn.set(entry.turn, { red: entry.redScoreAfter, blue: entry.blueScoreAfter });
+  }
+  const turns = Array.from(byTurn.keys()).sort((a, b) => a - b);
+  const data: { turn: string; red: number; blue: number }[] = [
+    { turn: 'Start', red: 0, blue: 0 },
+  ];
+  let lastRed = 0;
+  let lastBlue = 0;
+  for (const t of turns) {
+    const snap = byTurn.get(t)!;
+    lastRed = snap.red;
+    lastBlue = snap.blue;
+    data.push({ turn: `T${t}`, red: lastRed, blue: lastBlue });
+  }
+  return data;
+}
+
 function EndGameDialog({
   open,
   redScore,
@@ -404,8 +436,10 @@ function EndGameDialog({
         ? 'blue.400'
         : 'yellow.400';
 
+  const chartData = buildKillChartData(log);
+
   return (
-    <Dialog.Root open={open} onOpenChange={(d) => !d.open && onClose()} size="lg">
+    <Dialog.Root open={open} onOpenChange={(d) => !d.open && onClose()} size="xl">
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content bg="olive.800" borderColor="olive.600" border="2px solid">
@@ -424,51 +458,110 @@ function EndGameDialog({
             </Box>
 
             <Heading size="md" mb={2} color="olive.100">
-              Casualties (in order)
+              Kill Board
             </Heading>
             {log.length === 0 ? (
               <Text color="olive.400">No casualties recorded.</Text>
             ) : (
-              <VStack align="stretch" gap={2} maxH="150px" overflowY="auto">
-                {log.map((entry, i) => (
-                  <Box
-                    key={i}
-                    p={2}
-                    borderRadius="md"
-                    bg={entry.team === 'red' ? 'rust.800' : 'steel.800'}
-                    border="1px solid"
-                    borderColor={entry.team === 'red' ? 'rust.600' : 'steel.600'}
-                  >
-                    <Flex justify="space-between" align="center" mb={1}>
-                      <Text fontWeight="bold" color="olive.100">
-                        #{entry.order} — {entry.memberName}{' '}
-                        <Badge
-                          colorPalette={entry.team === 'red' ? 'red' : 'blue'}
-                          ml={1}
-                          variant="solid"
-                          fontSize="xs"
-                        >
-                          {entry.team === 'red' ? 'Red' : 'Blue'}
-                        </Badge>
-                      </Text>
-                      <Text fontSize="xs" color="olive.400">
-                        Turn {entry.turn}
-                      </Text>
-                    </Flex>
-                    <Text fontSize="xs" color="olive.400">
-                      {entry.unitType}
-                    </Text>
-                    <Text fontSize="xs" color="olive.300">
-                      Killed by: {entry.killedBy}
-                    </Text>
-                    {entry.notes && (
-                      <Text fontSize="xs" color="olive.200" fontStyle="italic" mt={1}>
-                        "{entry.notes}"
-                      </Text>
-                    )}
-                  </Box>
-                ))}
+              <VStack align="stretch" gap={2} maxH="220px" overflowY="auto">
+                {log.map((entry, i) => {
+                  const killerTeam = entry.team === 'red' ? 'blue' : 'red';
+                  return (
+                    <Box
+                      key={i}
+                      p={2}
+                      borderRadius="md"
+                      bg={killerTeam === 'red' ? 'rust.900' : 'steel.900'}
+                      border="1px solid"
+                      borderColor={killerTeam === 'red' ? 'rust.600' : 'steel.600'}
+                    >
+                      <Flex justify="space-between" align="flex-start">
+                        <Box flex="1">
+                          <HStack gap={1} mb={0.5} flexWrap="wrap">
+                            <Text fontSize="xs" color="olive.400" fontWeight="semibold">
+                              #{entry.order}
+                            </Text>
+                            <Badge
+                              colorPalette={killerTeam === 'red' ? 'red' : 'blue'}
+                              variant="solid"
+                              fontSize="xs"
+                            >
+                              {entry.killedBy}
+                            </Badge>
+                            <Text fontSize="sm" color="olive.300" fontWeight="bold" textTransform="uppercase">
+                              KILLED
+                            </Text>
+                            <Badge
+                              colorPalette={entry.team === 'red' ? 'red' : 'blue'}
+                              variant="outline"
+                              fontSize="xs"
+                            >
+                              {entry.memberName}
+                            </Badge>
+                          </HStack>
+                          {entry.notes && (
+                            <Text fontSize="xs" color="olive.400" fontStyle="italic" mt={0.5}>
+                              "{entry.notes}"
+                            </Text>
+                          )}
+                        </Box>
+                        <Box textAlign="right" ml={2} flexShrink={0}>
+                          <Text fontSize="xs" color="olive.500">
+                            T{entry.turn}
+                          </Text>
+                          <Text fontSize="xs" color="rust.300">
+                            🔴 {entry.redScoreAfter}
+                          </Text>
+                          <Text fontSize="xs" color="steel.300">
+                            🔵 {entry.blueScoreAfter}
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </Box>
+                  );
+                })}
               </VStack>
+            )}
+
+            {chartData.length > 1 && (
+              <Box mt={5}>
+                <Heading size="sm" mb={3} color="olive.100">
+                  Kill Rate — Red vs Blue
+                </Heading>
+                <Box h="180px">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#4a5040" />
+                      <XAxis dataKey="turn" stroke="#a0a890" tick={{ fontSize: 11 }} />
+                      <YAxis allowDecimals={false} stroke="#a0a890" tick={{ fontSize: 11 }} />
+                      <Tooltip
+                        contentStyle={{ background: '#2a3020', border: '1px solid #5a6050', borderRadius: 6 }}
+                        labelStyle={{ color: '#d0d8b0' }}
+                        itemStyle={{ color: '#d0d8b0' }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: 12, color: '#a0a890' }} />
+                      <Line
+                        type="monotone"
+                        dataKey="red"
+                        name="Red Kills"
+                        stroke="#e05050"
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: '#e05050' }}
+                        activeDot={{ r: 5 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="blue"
+                        name="Blue Kills"
+                        stroke="#5090e0"
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: '#5090e0' }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              </Box>
             )}
           </Dialog.Body>
           <Dialog.Footer>
@@ -633,11 +726,10 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
     );
 
     // Opposing team scores
-    if (target.team === 'red') {
-      setBlueScore((s) => s + 1);
-    } else {
-      setRedScore((s) => s + 1);
-    }
+    const newRedScore = target.team === 'blue' ? redScore + 1 : redScore;
+    const newBlueScore = target.team === 'red' ? blueScore + 1 : blueScore;
+    setRedScore(newRedScore);
+    setBlueScore(newBlueScore);
 
     setLog((prev) => [
       ...prev,
@@ -649,6 +741,8 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
         team: target.team,
         notes,
         killedBy: killedByLabel,
+        redScoreAfter: newRedScore,
+        blueScoreAfter: newBlueScore,
       },
     ]);
 
