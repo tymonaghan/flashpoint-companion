@@ -650,49 +650,34 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
           </Text>
           <Text color="olive.300" fontSize="xs">Red</Text>
         </Box>
-        <Box textAlign="center" px={4} borderLeft="2px solid" borderRight="2px solid" borderColor="olive.600">
-          <Text fontSize="lg" fontWeight="bold" color="olive.100" lineHeight="1">T{turn}</Text>
-          <Text fontSize="xs" color="olive.300">{activatedAliveCount}/{aliveMembersCount}</Text>
-        </Box>
-        <Box textAlign="center" flex={1}>
-          <Text fontSize="2xl" fontWeight="bold" color="steel.300" lineHeight="1">
-            {blueScore}
-          </Text>
-          <Text color="olive.300" fontSize="xs">Blue</Text>
-        </Box>
-      </Flex>
-
-      {/* Action buttons */}
-      <Flex gap={2} mb={1} justify="flex-end" flexShrink={0}>
+      <VStack
+        gap={1}
+        px={4}
+        borderLeft="2px solid"
+        borderRight="2px solid"
+        borderColor="olive.600"
+      >
+        <Text fontSize="lg" fontWeight="bold" color="olive.100" lineHeight="1">T{turn}</Text>
+        <Text fontSize="xs" color="olive.300">{activatedAliveCount}/{aliveMembersCount}</Text>
         <Button
-          size="sm"
+          size="xs"
           colorPalette={allActivated ? 'green' : 'yellow'}
           onClick={() => setShowNewTurn(true)}
           disabled={!initialized}
         >
           Next Turn
         </Button>
-        <Button
-          size="sm"
-          colorPalette="green"
-          variant="outline"
-          onClick={handleRestart}
-        >
-          {initialized ? 'Restart Game' : 'Start Game'}
-        </Button>
-        <Button
-          size="sm"
-          colorPalette="red"
-          variant="outline"
-          onClick={() => setShowEndGame(true)}
-          disabled={!initialized}
-        >
-          End Game
-        </Button>
+      </VStack>
+      <Box textAlign="center" flex={1}>
+        <Text fontSize="2xl" fontWeight="bold" color="steel.300" lineHeight="1">
+          {blueScore}
+        </Text>
+        <Text color="olive.300" fontSize="xs">Blue</Text>
+      </Box>
       </Flex>
 
       {!initialized && (
-        <Box
+      <Box
           textAlign="center"
           p={8}
           bg="olive.900"
@@ -765,6 +750,26 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
           </Flex>
         </Flex>
       )}
+
+      <Flex gap={2} mt={1} justify="flex-end" flexShrink={0}>
+        <Button
+          size="sm"
+          colorPalette="green"
+          variant="outline"
+          onClick={handleRestart}
+        >
+          {initialized ? 'Restart Game' : 'Start Game'}
+        </Button>
+        <Button
+          size="sm"
+          colorPalette="red"
+          variant="outline"
+          onClick={() => setShowEndGame(true)}
+          disabled={!initialized}
+        >
+          End Game
+        </Button>
+      </Flex>
 
       {/* Dialogs */}
       <CasualtyDialog
