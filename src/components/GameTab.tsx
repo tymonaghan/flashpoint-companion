@@ -17,6 +17,8 @@ import { FaCrosshairs, FaSkull } from 'react-icons/fa6';
 import type { TeamMember, GameMember, CasualtyLog } from '../types';
 
 const MAX_MEMBERS = 4;
+const MIN_HP = 1;
+const DEAD_HP = 0;
 const SPECIAL_KILLERS = [
   { value: 'gravity', label: 'Gravity' },
   { value: 'guardians', label: 'The Guardians' },
@@ -150,7 +152,7 @@ function MemberCard({
             colorPalette="red"
             variant="outline"
             onClick={() => onHit(member.id)}
-            disabled={casualtyPending || member.currentHp === 0}
+            disabled={casualtyPending || member.killed}
           >
             HIT
           </Button>
@@ -180,7 +182,8 @@ function CasualtyDialog({
   const [notes, setNotes] = useState('');
   const [killedBy, setKilledBy] = useState('');
 
-  const firstOptionValue = killerOptions[0]?.value ?? '';
+  const defaultKillerValue = SPECIAL_KILLERS[0]?.value ?? 'gravity';
+  const firstOptionValue = killerOptions[0]?.value ?? defaultKillerValue;
 
   function handleConfirm() {
     onConfirm(notes, killedBy || firstOptionValue);
@@ -221,24 +224,24 @@ function CasualtyDialog({
             </Field.Root>
             <Field.Root mt={3}>
               <Field.Label color="olive.200">Killed By</Field.Label>
-              <Box
-                as="select"
+              <select
                 value={selectedKiller}
                 onChange={(e) => setKilledBy(e.target.value)}
-                bg="olive.900"
-                color="olive.200"
-                border="1px solid"
-                borderColor="olive.700"
-                borderRadius="md"
-                p={2}
-                w="100%"
+                style={{
+                  background: '#151C14',
+                  color: '#dbe5c8',
+                  border: '1px solid #4A5A44',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  width: '100%',
+                }}
               >
                 {killerOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
-              </Box>
+              </select>
             </Field.Root>
           </Dialog.Body>
           <Dialog.Footer gap={3}>
@@ -524,10 +527,12 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
     let shouldOpenCasualty = false;
     setMembers((prev) =>
       prev.map((m) => {
-        if (m.id !== id || m.killed || m.currentHp === 0) return m;
-        const nextHp = Math.max(0, m.currentHp - 1);
-        if (nextHp === 0) shouldOpenCasualty = true;
-        return { ...m, currentHp: nextHp, activated: false };
+        if (m.id !== id || m.killed) return m;
+        if (m.currentHp === MIN_HP) {
+          shouldOpenCasualty = true;
+          return { ...m, activated: false };
+        }
+        return { ...m, currentHp: m.currentHp - 1, activated: false };
       }),
     );
     if (shouldOpenCasualty) {
@@ -571,7 +576,7 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
               casualtyNotes: notes,
               killedTurn: turn,
               activated: false,
-              currentHp: 0,
+              currentHp: DEAD_HP,
               deaths: m.deaths + 1,
             }
           : killer !== null && m.id === killer.id
@@ -604,15 +609,6 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
   }
 
   function handleCasualtyCancel() {
-    if (casualtyTarget) {
-      setMembers((prev) =>
-        prev.map((m) =>
-          m.id === casualtyTarget && !m.killed && m.currentHp === 0
-            ? { ...m, currentHp: 1 }
-            : m,
-        ),
-      );
-    }
     setCasualtyTarget(null);
   }
 

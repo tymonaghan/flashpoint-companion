@@ -11,6 +11,8 @@ import {
 import type { TeamMember } from '../types';
 
 const MAX_MEMBERS = 4;
+const MIN_HP = 1;
+const MAX_HP = 20;
 
 interface TeamColumnProps {
   color: 'red' | 'blue';
@@ -47,7 +49,9 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
 
   function handleHpChange(index: number, rawValue: string) {
     const numeric = Number.parseInt(rawValue, 10);
-    const hp = Number.isNaN(numeric) ? 1 : Math.max(1, numeric);
+    const hp = Number.isNaN(numeric)
+      ? MIN_HP
+      : Math.min(MAX_HP, Math.max(MIN_HP, numeric));
     updateMember(index, { hp });
   }
 
@@ -112,8 +116,8 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
                 <Input
                   size="xs"
                   type="number"
-                  min={1}
-                  max={20}
+                  min={MIN_HP}
+                  max={MAX_HP}
                   w="62px"
                   placeholder="HP"
                   value={member.hp}
