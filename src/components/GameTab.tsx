@@ -624,9 +624,7 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
 
   function handleNextTurnConfirm() {
     setTurn((t) => t + 1);
-    setMembers((prev) =>
-      prev.map((m) => (m.killed ? m : { ...m, activated: false })),
-    );
+    setMembers((prev) => prev.map((m) => ({ ...m, activated: false })));
     setShowNewTurn(false);
   }
 
