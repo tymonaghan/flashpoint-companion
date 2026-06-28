@@ -1,12 +1,74 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html {
+  height: 100%;
+}
+
 body {
-  background-color: #0a0a0f;
-  color: #e2e8f0;
-  font-family: system-ui, -apple-system, sans-serif;
-  min-height: 100vh;
+  background-color: #0f0f0c;
+  color: #d0ccc0;
+  font-family: 'Courier New', 'OCR A', monospace, system-ui, -apple-system, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Force tab panels to fill available height properly */
+[role="tabpanel"] {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+[role="tabpanel"] > * {
+  flex: 1;
+  min-height: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #d0ccc0 !important;
+  opacity: 0.8 !important;
+}
+
+/* Chakra Input component specificity */
+[data-slot="input"]::placeholder,
+input[type="text"]::placeholder {
+  color: #d0ccc0 !important;
+  opacity: 0.8 !important;
+}
+
+/* Override Chakra's input styling */
+input[type="text"],
+input[size="xs"] {
+  background-color: #0f0f0c !important;
+  color: #d0ccc0 !important;
+  border-color: #4a4540 !important;
+}
+
+input,
+textarea {
+  background-color: #0f0f0c !important;
+  color: #d0ccc0 !important;
+  border-color: #4a4540 !important;
+  opacity: 1 !important;
+}
+
+/* Force placeholder contrast */
+input:-webkit-autofill::first-line {
+  color: #d0ccc0 !important;
 }

@@ -3,7 +3,6 @@ import {
   Badge,
   Box,
   Button,
-  Card,
   Checkbox,
   Dialog,
   Field,
@@ -65,80 +64,54 @@ interface MemberCardProps {
 
 function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
   const isRed = member.team === 'red';
-  const borderColor = member.killed
-    ? 'gray.600'
-    : isRed
-      ? 'red.600'
-      : 'blue.600';
-  const bgColor = member.killed
-    ? 'gray.800'
-    : isRed
-      ? 'red.950'
-      : 'blue.950';
+  const borderColor = member.killed ? 'olive.700' : isRed ? 'rust.600' : 'steel.600';
+  const bgColor = member.killed ? 'olive.900' : isRed ? 'rust.900' : 'steel.900';
 
   return (
-    <Card.Root
+    <Flex
+      align="center"
+      justify="space-between"
+      px={2}
+      py={1}
+      mb={1}
       border="1px solid"
       borderColor={borderColor}
       bg={bgColor}
-      opacity={member.killed ? 0.5 : 1}
-      mb={3}
+      borderRadius="md"
+      opacity={member.killed ? 0.55 : 1}
+      gap={2}
+      minH="0"
     >
-      <Card.Body gap={2}>
-        <Flex align="center" justify="space-between" wrap="wrap" gap={2}>
-          <Box>
-            <Text fontWeight="bold" fontSize="md">
-              {member.name}
-            </Text>
-            <Text fontSize="sm" color="gray.400">
-              {member.unitType}
-            </Text>
-          </Box>
-          <HStack gap={2}>
-            {member.killed && (
-              <Badge colorPalette="gray" variant="solid">
-                KIA
-              </Badge>
-            )}
-            {member.activated && !member.killed && (
-              <Badge colorPalette="green" variant="solid">
-                Activated
-              </Badge>
-            )}
-          </HStack>
-        </Flex>
+      <Box flex={1} minW="0">
+        <Text fontWeight="bold" fontSize="xs" color="olive.100" truncate>
+          {member.name}
+        </Text>
+        <Text fontSize="xs" color="olive.400" truncate>
+          {member.unitType}
+        </Text>
+      </Box>
 
-        {!member.killed && (
-          <Flex gap={3} align="center" wrap="wrap">
-            <Checkbox.Root
-              checked={member.activated}
-              onCheckedChange={(d) => onActivate(member.id, !!d.checked)}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Control>
-                <Checkbox.Indicator />
-              </Checkbox.Control>
-              <Checkbox.Label fontSize="sm">Activated</Checkbox.Label>
-            </Checkbox.Root>
-
-            <Button
-              size="xs"
-              colorPalette="red"
-              variant="outline"
-              onClick={() => onKill(member.id)}
-            >
-              Mark Killed
-            </Button>
-          </Flex>
-        )}
-
-        {member.killed && member.casualtyNotes && (
-          <Text fontSize="xs" color="gray.400" fontStyle="italic">
-            "{member.casualtyNotes}"
-          </Text>
-        )}
-      </Card.Body>
-    </Card.Root>
+      {member.killed ? (
+        <Badge colorPalette="gray" variant="solid" fontSize="xs">KIA</Badge>
+      ) : (
+        <HStack gap={2} flexShrink={0}>
+          <Checkbox.Root
+            checked={member.activated}
+            onCheckedChange={(d) => onActivate(member.id, !!d.checked)}
+            size="sm"
+          >
+            <Checkbox.HiddenInput />
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+            <Checkbox.Label fontSize="xs" color="olive.300">Act</Checkbox.Label>
+          </Checkbox.Root>
+          <Button size="xs" colorPalette="red" variant="outline" onClick={() => onKill(member.id)}>
+            KIA
+          </Button>
+        </HStack>
+      )}
+    </Flex>
   );
 }
 
@@ -173,24 +146,28 @@ function CasualtyDialog({
     <Dialog.Root open={open} onOpenChange={(d) => !d.open && handleCancel()}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content bg="gray.900" borderColor="gray.700" border="1px solid">
+        <Dialog.Content bg="olive.800" borderColor="olive.600" border="2px solid">
           <Dialog.Header>
-            <Dialog.Title>Casualty Report — {memberName}</Dialog.Title>
+            <Dialog.Title color="olive.100">Casualty Report — {memberName}</Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>
             <Field.Root>
-              <Field.Label>Casualty Notes</Field.Label>
+              <Field.Label color="olive.200">Casualty Notes</Field.Label>
               <Textarea
                 placeholder="Describe how they fell..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 autoFocus
+                bg="olive.900"
+                color="olive.200"
+                borderColor="olive.700"
+                _placeholder={{ color: 'olive.200', opacity: 0.6 }}
               />
             </Field.Root>
           </Dialog.Body>
           <Dialog.Footer gap={3}>
-            <Button variant="outline" onClick={handleCancel}>
+            <Button bg="olive.700" color="olive.100" _hover={{ bg: "olive.600" }} onClick={handleCancel}>
               Cancel
             </Button>
             <Button colorPalette="red" onClick={handleConfirm}>
@@ -236,12 +213,12 @@ function NewTurnDialog({ open, onConfirm, onCancel }: NewTurnDialogProps) {
     <Dialog.Root open={open} onOpenChange={(d) => !d.open && handleCancel()}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content bg="gray.900" borderColor="gray.700" border="1px solid">
+        <Dialog.Content bg="olive.800" borderColor="olive.600" border="2px solid">
           <Dialog.Header>
-            <Dialog.Title>New Turn Checklist</Dialog.Title>
+            <Dialog.Title color="olive.100">New Turn Checklist</Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>
-            <Text color="gray.400" mb={4}>
+            <Text color="olive.200" mb={4} fontWeight="500">
               Check off each item before starting the next turn.
             </Text>
             <VStack align="start" gap={4}>
@@ -253,7 +230,7 @@ function NewTurnDialog({ open, onConfirm, onCancel }: NewTurnDialogProps) {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                <Checkbox.Label>Weapons dropped (collect weapon tokens)</Checkbox.Label>
+                <Checkbox.Label color="olive.200">Weapons dropped (collect weapon tokens)</Checkbox.Label>
               </Checkbox.Root>
               <Checkbox.Root
                 checked={shieldsReplenished}
@@ -263,7 +240,7 @@ function NewTurnDialog({ open, onConfirm, onCancel }: NewTurnDialogProps) {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                <Checkbox.Label>Shields replenished</Checkbox.Label>
+                <Checkbox.Label color="olive.200">Shields replenished</Checkbox.Label>
               </Checkbox.Root>
               <Checkbox.Root
                 checked={commandDiceRolled}
@@ -273,12 +250,12 @@ function NewTurnDialog({ open, onConfirm, onCancel }: NewTurnDialogProps) {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                <Checkbox.Label>Command dice rolled</Checkbox.Label>
+                <Checkbox.Label color="olive.200">Command dice rolled</Checkbox.Label>
               </Checkbox.Root>
             </VStack>
           </Dialog.Body>
           <Dialog.Footer gap={3}>
-            <Button variant="outline" onClick={handleCancel}>
+            <Button bg="olive.700" color="olive.100" _hover={{ bg: "olive.600" }} onClick={handleCancel}>
               Cancel
             </Button>
             <Button
@@ -330,39 +307,39 @@ function EndGameDialog({
     <Dialog.Root open={open} onOpenChange={(d) => !d.open && onClose()} size="lg">
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content bg="gray.900" borderColor="gray.700" border="1px solid">
+        <Dialog.Content bg="olive.800" borderColor="olive.600" border="2px solid">
           <Dialog.Header>
-            <Dialog.Title>After Action Report</Dialog.Title>
+            <Dialog.Title color="olive.100">After Action Report</Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>
-            <Box textAlign="center" mb={6}>
+            <Box textAlign="center" mb={4}>
               <Text fontSize="2xl" fontWeight="bold" color={winnerColor}>
                 {winner === 'Draw' ? '⚔️ Draw!' : `🏆 ${winner} Wins!`}
               </Text>
               <HStack justify="center" gap={8} mt={2}>
-                <Text color="red.300">Red: {redScore} pts</Text>
-                <Text color="blue.300">Blue: {blueScore} pts</Text>
+                <Text color="rust.200" fontWeight="600">Red: {redScore} pts</Text>
+                <Text color="steel.200" fontWeight="600">Blue: {blueScore} pts</Text>
               </HStack>
             </Box>
 
-            <Heading size="md" mb={3}>
+            <Heading size="md" mb={2} color="olive.100">
               Casualties (in order)
             </Heading>
             {log.length === 0 ? (
-              <Text color="gray.500">No casualties recorded.</Text>
+              <Text color="olive.400">No casualties recorded.</Text>
             ) : (
-              <VStack align="stretch" gap={2}>
+              <VStack align="stretch" gap={2} maxH="150px" overflowY="auto">
                 {log.map((entry, i) => (
                   <Box
                     key={i}
-                    p={3}
+                    p={2}
                     borderRadius="md"
-                    bg={entry.team === 'red' ? 'red.950' : 'blue.950'}
+                    bg={entry.team === 'red' ? 'rust.800' : 'steel.800'}
                     border="1px solid"
-                    borderColor={entry.team === 'red' ? 'red.700' : 'blue.700'}
+                    borderColor={entry.team === 'red' ? 'rust.600' : 'steel.600'}
                   >
                     <Flex justify="space-between" align="center" mb={1}>
-                      <Text fontWeight="bold">
+                      <Text fontWeight="bold" color="olive.100">
                         #{entry.order} — {entry.memberName}{' '}
                         <Badge
                           colorPalette={entry.team === 'red' ? 'red' : 'blue'}
@@ -373,15 +350,15 @@ function EndGameDialog({
                           {entry.team === 'red' ? 'Red' : 'Blue'}
                         </Badge>
                       </Text>
-                      <Text fontSize="sm" color="gray.400">
+                      <Text fontSize="xs" color="olive.400">
                         Turn {entry.turn}
                       </Text>
                     </Flex>
-                    <Text fontSize="sm" color="gray.400">
+                    <Text fontSize="xs" color="olive.400">
                       {entry.unitType}
                     </Text>
                     {entry.notes && (
-                      <Text fontSize="sm" color="gray.300" fontStyle="italic" mt={1}>
+                      <Text fontSize="xs" color="olive.200" fontStyle="italic" mt={1}>
                         "{entry.notes}"
                       </Text>
                     )}
@@ -391,7 +368,7 @@ function EndGameDialog({
             )}
           </Dialog.Body>
           <Dialog.Footer>
-            <Button colorPalette="blue" onClick={onClose}>
+            <Button colorPalette="green" onClick={onClose}>
               Close
             </Button>
           </Dialog.Footer>
@@ -508,49 +485,42 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
   }
 
   return (
-    <Box pt={6}>
+    <Box h="100%" minH="0" display="flex" flexDirection="column">
       {/* Scoreboard */}
       <Flex
         align="center"
         justify="space-between"
-        bg="gray.800"
-        borderRadius="xl"
-        p={4}
-        mb={6}
-        wrap="wrap"
-        gap={4}
+        bg="olive.700"
+        borderRadius="lg"
+        px={4}
+        py={2}
+        mb={1}
+        border="2px solid"
+        borderColor="olive.600"
+        flexShrink={0}
       >
         <Box textAlign="center" flex={1}>
-          <Text fontSize="3xl" fontWeight="bold" color="red.400">
+          <Text fontSize="2xl" fontWeight="bold" color="rust.300" lineHeight="1">
             {redScore}
           </Text>
-          <Text color="red.300" fontSize="sm">
-            Red Team
-          </Text>
+          <Text color="olive.300" fontSize="xs">Red</Text>
         </Box>
-
-        <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold" color="gray.300">
-            Turn {turn}
-          </Text>
-          <Text fontSize="xs" color="gray.500">
-            {activatedAliveCount} / {aliveMembersCount} activated
-          </Text>
+        <Box textAlign="center" px={4} borderLeft="2px solid" borderRight="2px solid" borderColor="olive.600">
+          <Text fontSize="lg" fontWeight="bold" color="olive.100" lineHeight="1">T{turn}</Text>
+          <Text fontSize="xs" color="olive.300">{activatedAliveCount}/{aliveMembersCount}</Text>
         </Box>
-
         <Box textAlign="center" flex={1}>
-          <Text fontSize="3xl" fontWeight="bold" color="blue.400">
+          <Text fontSize="2xl" fontWeight="bold" color="steel.300" lineHeight="1">
             {blueScore}
           </Text>
-          <Text color="blue.300" fontSize="sm">
-            Blue Team
-          </Text>
+          <Text color="olive.300" fontSize="xs">Blue</Text>
         </Box>
       </Flex>
 
       {/* Action buttons */}
-      <Flex gap={3} mb={6} justify="flex-end" wrap="wrap">
+      <Flex gap={2} mb={1} justify="flex-end" flexShrink={0}>
         <Button
+          size="sm"
           colorPalette="green"
           onClick={() => setShowNewTurn(true)}
           disabled={!allActivated || !initialized}
@@ -558,13 +528,15 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
           Next Turn
         </Button>
         <Button
-          colorPalette="yellow"
+          size="sm"
+          colorPalette="green"
           variant="outline"
           onClick={handleRestart}
         >
           {initialized ? 'Restart Game' : 'Start Game'}
         </Button>
         <Button
+          size="sm"
           colorPalette="red"
           variant="outline"
           onClick={() => setShowEndGame(true)}
@@ -577,12 +549,14 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
       {!initialized && (
         <Box
           textAlign="center"
-          p={12}
-          bg="gray.800"
+          p={8}
+          bg="olive.900"
           borderRadius="xl"
-          color="gray.400"
+          color="olive.400"
+          border="1px solid"
+          borderColor="olive.700"
         >
-          <Text fontSize="lg" mb={2}>
+          <Text fontSize="lg" mb={2} color="olive.200">
             Configure your teams in the Setup tab, then click{' '}
             <strong>Start Game</strong> to begin.
           </Text>
@@ -590,52 +564,56 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
       )}
 
       {initialized && (
-        <Flex gap={6} flexWrap="wrap">
+        <Flex gap={3} flex={1} minH="0" overflow="hidden">
           {/* Red Team */}
-          <Box flex={1} minW="280px">
-            <Flex align="center" gap={2} mb={3}>
-              <Heading size="md" color="red.300">
+          <Flex flex={1} minW="0" minH="0" direction="column" overflow="hidden">
+            <Flex align="center" gap={2} mb={2} flexShrink={0}>
+              <Heading size="md" color="rust.300">
                 Red Team
               </Heading>
-              <Badge colorPalette="red" variant="solid">
+              <Badge bg="rust.700" color="rust.100" fontSize="xs">
                 {members.filter((m) => m.team === 'red' && !m.killed).length}{' '}
                 alive
               </Badge>
             </Flex>
-            {members
-              .filter((m) => m.team === 'red')
-              .map((m) => (
-                <MemberCard
-                  key={m.id}
-                  member={m}
-                  onActivate={handleActivate}
-                  onKill={handleKill}
-                />
-              ))}
-          </Box>
+            <Box flex={1} overflowY="auto">
+              {members
+                .filter((m) => m.team === 'red')
+                .map((m) => (
+                  <MemberCard
+                    key={m.id}
+                    member={m}
+                    onActivate={handleActivate}
+                    onKill={handleKill}
+                  />
+                ))}
+            </Box>
+          </Flex>
 
           {/* Blue Team */}
-          <Box flex={1} minW="280px">
-            <Flex align="center" gap={2} mb={3}>
-              <Heading size="md" color="blue.300">
+          <Flex flex={1} minW="0" minH="0" direction="column" overflow="hidden">
+            <Flex align="center" gap={2} mb={2} flexShrink={0}>
+              <Heading size="md" color="steel.300">
                 Blue Team
               </Heading>
-              <Badge colorPalette="blue" variant="solid">
+              <Badge bg="steel.700" color="steel.100" fontSize="xs">
                 {members.filter((m) => m.team === 'blue' && !m.killed).length}{' '}
                 alive
               </Badge>
             </Flex>
-            {members
-              .filter((m) => m.team === 'blue')
-              .map((m) => (
-                <MemberCard
-                  key={m.id}
-                  member={m}
-                  onActivate={handleActivate}
-                  onKill={handleKill}
-                />
-              ))}
-          </Box>
+            <Box flex={1} overflowY="auto">
+              {members
+                .filter((m) => m.team === 'blue')
+                .map((m) => (
+                  <MemberCard
+                    key={m.id}
+                    member={m}
+                    onActivate={handleActivate}
+                    onKill={handleKill}
+                  />
+                ))}
+            </Box>
+          </Flex>
         </Flex>
       )}
 

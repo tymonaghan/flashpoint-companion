@@ -82,16 +82,16 @@ export function AskTab() {
   }
 
   return (
-    <Box maxW="800px" mx="auto" pt={6}>
-      <Heading size="xl" mb={4}>
+    <Box maxW="800px" mx="auto" pt={1}>
+      <Heading size="xl" mb={2}>
         Ask the Rules Assistant
       </Heading>
-      <Text color="gray.400" mb={4}>
+      <Text color="olive.400" mb={3}>
         Ask any question about Halo: Flashpoint rules. The assistant has access
         to the full ruleset and will answer in plain language.
       </Text>
 
-      <Field.Root mb={6}>
+      <Field.Root mb={3}>
         <Field.Label>OpenAI API Key</Field.Label>
         <Input
           type="password"
@@ -106,20 +106,20 @@ export function AskTab() {
 
       <Box
         border="1px solid"
-        borderColor="gray.700"
+        borderColor="olive.700"
         borderRadius="md"
-        minH="400px"
-        maxH="500px"
+        minH="300px"
+        maxH="400px"
         overflowY="auto"
-        p={4}
-        mb={4}
-        bg="gray.900"
+        p={3}
+        mb={3}
+        bg="olive.800"
         display="flex"
         flexDirection="column"
-        gap={3}
+        gap={2}
       >
         {messages.length === 0 && (
-          <Text color="gray.500" alignSelf="center" mt="auto" mb="auto">
+          <Text color="olive.500" alignSelf="center" mt="auto" mb="auto">
             Ask a rules question to get started.
           </Text>
         )}
@@ -128,15 +128,15 @@ export function AskTab() {
             key={i}
             alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
             maxW="80%"
-            bg={msg.role === 'user' ? 'blue.700' : 'gray.700'}
-            px={4}
+            bg={msg.role === 'user' ? 'steel.600' : 'olive.700'}
+            px={3}
             py={2}
             borderRadius="lg"
           >
-            <Text fontSize="sm" fontWeight="bold" mb={1} color={msg.role === 'user' ? 'blue.200' : 'green.200'}>
+            <Text fontSize="xs" fontWeight="bold" mb={1} color={msg.role === 'user' ? 'steel.200' : 'olive.400'}>
               {msg.role === 'user' ? 'You' : 'Assistant'}
             </Text>
-            <Text whiteSpace="pre-wrap">{msg.content}</Text>
+            <Text fontSize="sm" whiteSpace="pre-wrap" color="olive.200">{msg.content}</Text>
           </Box>
         ))}
         {loading && (
@@ -148,7 +148,7 @@ export function AskTab() {
       </Box>
 
       {error && (
-        <Text color="red.400" mb={2} fontSize="sm">
+        <Text color="rust.200" mb={2} fontSize="sm">
           Error: {error}
         </Text>
       )}
