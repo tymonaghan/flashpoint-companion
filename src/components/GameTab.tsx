@@ -66,15 +66,15 @@ interface MemberCardProps {
 function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
   const isRed = member.team === 'red';
   const borderColor = member.killed
-    ? 'gray.600'
+    ? 'olive.700'
     : isRed
-      ? 'red.600'
-      : 'blue.600';
+      ? 'rust.500'
+      : 'steel.500';
   const bgColor = member.killed
-    ? 'gray.800'
+    ? 'olive.800'
     : isRed
-      ? 'red.950'
-      : 'blue.950';
+      ? 'rust.800'
+      : 'steel.800';
 
   return (
     <Card.Root
@@ -87,10 +87,10 @@ function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
       <Card.Body gap={2}>
         <Flex align="center" justify="space-between" wrap="wrap" gap={2}>
           <Box>
-            <Text fontWeight="bold" fontSize="md">
+            <Text fontWeight="bold" fontSize="md" color="olive.200">
               {member.name}
             </Text>
-            <Text fontSize="sm" color="gray.400">
+            <Text fontSize="sm" color="olive.500">
               {member.unitType}
             </Text>
           </Box>
@@ -133,7 +133,7 @@ function MemberCard({ member, onActivate, onKill }: MemberCardProps) {
         )}
 
         {member.killed && member.casualtyNotes && (
-          <Text fontSize="xs" color="gray.400" fontStyle="italic">
+          <Text fontSize="xs" color="olive.500" fontStyle="italic">
             "{member.casualtyNotes}"
           </Text>
         )}
@@ -173,7 +173,7 @@ function CasualtyDialog({
     <Dialog.Root open={open} onOpenChange={(d) => !d.open && handleCancel()}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content bg="gray.900" borderColor="gray.700" border="1px solid">
+        <Dialog.Content bg="olive.800" borderColor="olive.700" border="1px solid">
           <Dialog.Header>
             <Dialog.Title>Casualty Report — {memberName}</Dialog.Title>
           </Dialog.Header>
@@ -236,12 +236,12 @@ function NewTurnDialog({ open, onConfirm, onCancel }: NewTurnDialogProps) {
     <Dialog.Root open={open} onOpenChange={(d) => !d.open && handleCancel()}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content bg="gray.900" borderColor="gray.700" border="1px solid">
+        <Dialog.Content bg="olive.800" borderColor="olive.700" border="1px solid">
           <Dialog.Header>
             <Dialog.Title>New Turn Checklist</Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>
-            <Text color="gray.400" mb={4}>
+            <Text color="olive.400" mb={4}>
               Check off each item before starting the next turn.
             </Text>
             <VStack align="start" gap={4}>
@@ -330,7 +330,7 @@ function EndGameDialog({
     <Dialog.Root open={open} onOpenChange={(d) => !d.open && onClose()} size="lg">
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content bg="gray.900" borderColor="gray.700" border="1px solid">
+        <Dialog.Content bg="olive.800" borderColor="olive.700" border="1px solid">
           <Dialog.Header>
             <Dialog.Title>After Action Report</Dialog.Title>
           </Dialog.Header>
@@ -340,8 +340,8 @@ function EndGameDialog({
                 {winner === 'Draw' ? '⚔️ Draw!' : `🏆 ${winner} Wins!`}
               </Text>
               <HStack justify="center" gap={8} mt={2}>
-                <Text color="red.300">Red: {redScore} pts</Text>
-                <Text color="blue.300">Blue: {blueScore} pts</Text>
+                <Text color="rust.200">Red: {redScore} pts</Text>
+                <Text color="steel.200">Blue: {blueScore} pts</Text>
               </HStack>
             </Box>
 
@@ -349,7 +349,7 @@ function EndGameDialog({
               Casualties (in order)
             </Heading>
             {log.length === 0 ? (
-              <Text color="gray.500">No casualties recorded.</Text>
+              <Text color="olive.500">No casualties recorded.</Text>
             ) : (
               <VStack align="stretch" gap={2}>
                 {log.map((entry, i) => (
@@ -357,9 +357,9 @@ function EndGameDialog({
                     key={i}
                     p={3}
                     borderRadius="md"
-                    bg={entry.team === 'red' ? 'red.950' : 'blue.950'}
+                    bg={entry.team === 'red' ? 'rust.800' : 'steel.800'}
                     border="1px solid"
-                    borderColor={entry.team === 'red' ? 'red.700' : 'blue.700'}
+                    borderColor={entry.team === 'red' ? 'rust.500' : 'steel.500'}
                   >
                     <Flex justify="space-between" align="center" mb={1}>
                       <Text fontWeight="bold">
@@ -508,48 +508,48 @@ export function GameTab({ redTeam, blueTeam }: GameTabProps) {
   }
 
   return (
-    <Box pt={6}>
+    <Box pt={1}>
       {/* Scoreboard */}
       <Flex
         align="center"
         justify="space-between"
-        bg="gray.800"
+        bg="olive.800"
         borderRadius="xl"
-        p={4}
-        mb={6}
+        p={3}
+        mb={3}
         wrap="wrap"
-        gap={4}
+        gap={3}
       >
         <Box textAlign="center" flex={1}>
-          <Text fontSize="3xl" fontWeight="bold" color="red.400">
+          <Text fontSize="3xl" fontWeight="bold" color="rust.200">
             {redScore}
           </Text>
-          <Text color="red.300" fontSize="sm">
+          <Text color="rust.600" fontSize="sm">
             Red Team
           </Text>
         </Box>
 
         <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold" color="gray.300">
+          <Text fontSize="lg" fontWeight="bold" color="olive.300">
             Turn {turn}
           </Text>
-          <Text fontSize="xs" color="gray.500">
+          <Text fontSize="xs" color="olive.600">
             {activatedAliveCount} / {aliveMembersCount} activated
           </Text>
         </Box>
 
         <Box textAlign="center" flex={1}>
-          <Text fontSize="3xl" fontWeight="bold" color="blue.400">
+          <Text fontSize="3xl" fontWeight="bold" color="steel.200">
             {blueScore}
           </Text>
-          <Text color="blue.300" fontSize="sm">
+          <Text color="steel.900" fontSize="sm">
             Blue Team
           </Text>
         </Box>
       </Flex>
 
       {/* Action buttons */}
-      <Flex gap={3} mb={6} justify="flex-end" wrap="wrap">
+      <Flex gap={3} mb={3} justify="flex-end" wrap="wrap">
         <Button
           colorPalette="green"
           onClick={() => setShowNewTurn(true)}

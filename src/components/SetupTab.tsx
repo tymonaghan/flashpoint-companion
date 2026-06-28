@@ -3,7 +3,6 @@ import {
   Box,
   Card,
   Checkbox,
-  Field,
   Flex,
   Heading,
   Input,
@@ -30,9 +29,9 @@ function activeCount(members: TeamMember[]): number {
 function TeamColumn({ color, members, onChange }: TeamColumnProps) {
   const active = activeCount(members);
   const colorScheme = color === 'red' ? 'red' : 'blue';
-  const borderColor = color === 'red' ? 'red.600' : 'blue.600';
-  const bgColor = color === 'red' ? 'red.950' : 'blue.950';
-  const headingColor = color === 'red' ? 'red.300' : 'blue.300';
+  const borderColor = color === 'red' ? 'rust.500' : 'steel.500';
+  const bgColor = color === 'red' ? 'rust.800' : 'steel.800';
+  const headingColor = color === 'red' ? 'rust.200' : 'steel.300';
 
   function updateMember(index: number, patch: Partial<TeamMember>) {
     const updated = members.map((m, i) => (i === index ? { ...m, ...patch } : m));
@@ -47,64 +46,64 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
   }
 
   return (
-    <Box flex={1} minW="280px">
-      <Flex align="center" gap={3} mb={4}>
-        <Heading size="lg" color={headingColor}>
+    <Box flex={1} minW="300px" h="100%" display="flex" flexDirection="column" p={1}>
+      <Flex align="center" gap={1} mb={1} flexShrink={0}>
+        <Heading size="xs" color={headingColor}>
           {color === 'red' ? 'Red Team' : 'Blue Team'}
         </Heading>
-        <Badge colorPalette={colorScheme} variant="solid">
-          {active} / {MAX_MEMBERS} active
+        <Badge colorPalette={colorScheme} variant="solid" fontSize="2xs">
+          {active}/{MAX_MEMBERS}
         </Badge>
       </Flex>
-      <Text fontSize="sm" color="gray.400" mb={4}>
-        {active} member{active !== 1 ? 's' : ''} will participate in game.
-        Legendary units reduce team size by 1.
-      </Text>
 
-      {members.map((member, i) => {
-        const isActive = i < active;
-        return (
-          <Card.Root
-            key={member.id}
-            mb={3}
-            bg={isActive ? bgColor : 'gray.800'}
-            border="1px solid"
-            borderColor={isActive ? borderColor : 'gray.600'}
-            opacity={isActive ? 1 : 0.45}
-          >
-            <Card.Body gap={3}>
-              <Flex align="center" justify="space-between">
-                <Text fontWeight="bold" color={isActive ? headingColor : 'gray.500'}>
-                  Member {i + 1}
+      <Box flex={1} overflowY="auto" overflowX="hidden">
+        {members.map((member, i) => {
+          const isActive = i < active;
+          return (
+            <Card.Root
+              key={member.id}
+              mb={1}
+              bg={isActive ? bgColor : 'olive.800'}
+              border="1px solid"
+              borderColor={isActive ? borderColor : 'olive.700'}
+              opacity={isActive ? 1 : 0.55}
+              p={1}
+            >
+              <Flex align="center" justify="space-between" gap={1} mb={1}>
+                <Text fontWeight="bold" fontSize="2xs" color={isActive ? headingColor : 'olive.500'}>
+                  #{i + 1}
                 </Text>
                 {member.legendary && (
-                  <Badge colorPalette="yellow" variant="solid" fontSize="xs">
-                    LEGENDARY
+                  <Badge colorPalette="yellow" variant="solid" fontSize="2xs">
+                    LEG
                   </Badge>
                 )}
               </Flex>
 
-              <Field.Root>
-                <Field.Label fontSize="sm">Name</Field.Label>
+              <Flex gap={1} mb={1}>
                 <Input
-                  size="sm"
-                  placeholder="Spartan callsign..."
+                  size="xs"
+                  placeholder="Name"
                   value={member.name}
                   onChange={(e) => updateMember(i, { name: e.target.value })}
                   disabled={!isActive}
+                  bg="olive.900"
+                  color="olive.200"
+                  borderColor="olive.700"
+                  _placeholder={{ color: 'olive.200', opacity: 0.8 }}
                 />
-              </Field.Root>
-
-              <Field.Root>
-                <Field.Label fontSize="sm">Unit Type</Field.Label>
                 <Input
-                  size="sm"
-                  placeholder="e.g. Spartan, Elite, Grunt..."
+                  size="xs"
+                  placeholder="Type"
                   value={member.unitType}
                   onChange={(e) => updateMember(i, { unitType: e.target.value })}
                   disabled={!isActive}
+                  bg="olive.900"
+                  color="olive.200"
+                  borderColor="olive.700"
+                  _placeholder={{ color: 'olive.200', opacity: 0.8 }}
                 />
-              </Field.Root>
+              </Flex>
 
               <Checkbox.Root
                 checked={member.legendary}
@@ -112,19 +111,18 @@ function TeamColumn({ color, members, onChange }: TeamColumnProps) {
                   handleLegendaryChange(i, !!details.checked)
                 }
                 disabled={!isActive && !member.legendary}
+                size="sm"
               >
                 <Checkbox.HiddenInput />
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                <Checkbox.Label fontSize="sm">
-                  Legendary (reduces team size by 1)
-                </Checkbox.Label>
+                <Checkbox.Label fontSize="2xs">Legendary</Checkbox.Label>
               </Checkbox.Root>
-            </Card.Body>
-          </Card.Root>
-        );
-      })}
+            </Card.Root>
+          );
+        })}
+      </Box>
     </Box>
   );
 }
@@ -143,15 +141,8 @@ export function SetupTab({
   onBlueTeamChange,
 }: SetupTabProps) {
   return (
-    <Box pt={6}>
-      <Heading size="xl" mb={2}>
-        Fireteam Setup
-      </Heading>
-      <Text color="gray.400" mb={6}>
-        Configure your fireteams before starting the game. Switch to the Game
-        tab when ready.
-      </Text>
-      <Flex gap={6} flexWrap="wrap">
+    <Box h="100%" w="100%" p={1}>
+      <Flex gap={1} h="100%" w="100%">
         <TeamColumn
           color="red"
           members={redTeam}
